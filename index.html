@@ -6,224 +6,64 @@
 <title>MoleculeLink AI — Pre-Synthesis Auditor</title>
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
-/*
-  DESIGN RATIONALE
-  ────────────────
-  Color psychology: Near-white (#FAFAF8) base evokes lab paper and scientific
-  print — the material researchers associate with credibility. A single forest
-  green accent (#2D6A4F) is used exclusively for positive signals (pass, proceed,
-  live data). It reads as "measured approval" rather than excitement. Amber and
-  muted red carry their universal warning/danger meanings but are desaturated so
-  they feel clinical, not alarming.
-
-  Typography psychology: EB Garamond is the typeface of academic publishing —
-  Nature, Cell, NEJM all use humanist serifs. Seeing it triggers the same trust
-  response as a peer-reviewed paper. JetBrains Mono for all data values creates
-  a clear visual hierarchy: prose = human judgment, mono = machine-precise data.
-
-  Spatial psychology: Asymmetric left-heavy layout with a fixed sidebar mirrors
-  instrument dashboards (HPLC, NMR software). The left column is "controls and
-  identity," the right column is "output." This maps to how researchers mentally
-  separate input from result.
-
-  Restraint psychology: Only one element uses a filled background color (the
-  score badge). Everything else is defined by borders and typography alone.
-  Restraint signals confidence — we highlight only what is genuinely important.
-*/
-
-:root {
-  --paper:       #FAFAF8;
-  --white:       #FFFFFF;
-  --ink:         #1A1A18;
-  --ink2:        #3D3D3A;
-  --ink3:        #6B6B66;
-  --ink4:        #9B9B94;
-  --ink5:        #C8C8C0;
-  --rule:        #E8E8E2;
-  --rule2:       #D4D4CC;
-  --green:       #2D6A4F;
-  --green-lt:    #EAF2ED;
-  --green-mid:   #B7D4C4;
-  --amber:       #7A5C1E;
-  --amber-lt:    #FAF3E6;
-  --red:         #7A2828;
-  --red-lt:      #FAF0F0;
-  --blue:        #1E4A7A;
-  --blue-lt:     #EEF3FA;
-  --serif:       'EB Garamond', Georgia, serif;
-  --mono:        'JetBrains Mono', 'Courier New', monospace;
-}
-
+:root{--paper:#FAFAF8;--white:#FFFFFF;--ink:#1A1A18;--ink2:#3D3D3A;--ink3:#6B6B66;--ink4:#9B9B94;--ink5:#C8C8C0;--rule:#E8E8E2;--rule2:#D4D4CC;--green:#2D6A4F;--green-lt:#EAF2ED;--green-mid:#B7D4C4;--amber:#7A5C1E;--amber-lt:#FAF3E6;--red:#7A2828;--red-lt:#FAF0F0;--serif:'EB Garamond',Georgia,serif;--mono:'JetBrains Mono','Courier New',monospace;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{font-size:16px;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
 body{background:var(--paper);color:var(--ink);font-family:var(--serif);line-height:1.6;min-height:100vh;}
-
-/* ── LAYOUT: fixed left sidebar + scrolling right content ── */
 .layout{display:grid;grid-template-columns:280px 1fr;min-height:100vh;}
-
-/* ── LEFT SIDEBAR ───────────────────────────────────────── */
-.sidebar{
-  background:var(--white);
-  border-right:1px solid var(--rule);
-  padding:2.5rem 2rem;
-  position:sticky;
-  top:0;
-  height:100vh;
-  overflow-y:auto;
-  display:flex;
-  flex-direction:column;
-  gap:0;
-}
-.sidebar-logo{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  margin-bottom:2.5rem;
-  padding-bottom:2rem;
-  border-bottom:1px solid var(--rule);
-}
-.logo-hex{
-  width:32px;height:32px;
-  border:1.5px solid var(--ink);
-  border-radius:8px;
-  display:flex;align-items:center;justify-content:center;
-  flex-shrink:0;
-}
+.sidebar{background:var(--white);border-right:1px solid var(--rule);padding:2.5rem 2rem;position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column;}
+.sidebar-logo{display:flex;align-items:center;gap:10px;margin-bottom:2.5rem;padding-bottom:2rem;border-bottom:1px solid var(--rule);}
+.logo-hex{width:32px;height:32px;border:1.5px solid var(--ink);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .logo-hex svg{width:16px;height:16px;stroke:var(--ink);fill:none;stroke-width:1.5;}
-.logo-text{display:flex;flex-direction:column;gap:1px;}
 .logo-name{font-family:var(--mono);font-size:13px;font-weight:500;letter-spacing:0.02em;color:var(--ink);}
 .logo-sub{font-family:var(--mono);font-size:9px;color:var(--ink4);letter-spacing:0.1em;text-transform:uppercase;}
-
-/* Sidebar sections */
 .sb-section{margin-bottom:2rem;}
 .sb-label{font-family:var(--mono);font-size:9px;color:var(--ink4);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.75rem;display:block;}
-
-/* SMILES input in sidebar */
-.smiles-input{
-  width:100%;
-  background:var(--paper);
-  border:1px solid var(--rule2);
-  border-radius:4px;
-  color:var(--ink);
-  font-family:var(--mono);
-  font-size:12px;
-  font-weight:300;
-  padding:9px 11px;
-  outline:none;
-  transition:border-color 0.15s,box-shadow 0.15s;
-  resize:vertical;
-  min-height:70px;
-  line-height:1.5;
-}
+.smiles-input{width:100%;background:var(--paper);border:1px solid var(--rule2);border-radius:4px;color:var(--ink);font-family:var(--mono);font-size:12px;font-weight:300;padding:9px 11px;outline:none;transition:border-color 0.15s,box-shadow 0.15s;resize:vertical;min-height:70px;line-height:1.5;}
 .smiles-input:focus{border-color:var(--green);box-shadow:0 0 0 2px rgba(45,106,79,0.1);}
 .smiles-input::placeholder{color:var(--ink5);}
-
-.btn-run{
-  width:100%;
-  margin-top:10px;
-  background:var(--ink);
-  color:var(--white);
-  border:none;
-  border-radius:4px;
-  font-family:var(--mono);
-  font-size:12px;
-  font-weight:400;
-  letter-spacing:0.04em;
-  padding:10px 0;
-  cursor:pointer;
-  transition:background 0.15s,transform 0.1s;
-}
+.btn-run{width:100%;margin-top:10px;background:var(--ink);color:var(--white);border:none;border-radius:4px;font-family:var(--mono);font-size:12px;font-weight:400;letter-spacing:0.04em;padding:10px 0;cursor:pointer;transition:background 0.15s,transform 0.1s;}
 .btn-run:hover{background:var(--ink2);}
 .btn-run:active{transform:scale(0.98);}
 .btn-run:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
-
-/* Example compounds */
 .example-list{display:flex;flex-direction:column;gap:4px;}
-.example-item{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:7px 10px;
-  border:1px solid var(--rule);
-  border-radius:4px;
-  cursor:pointer;
-  transition:border-color 0.12s,background 0.12s;
-  background:transparent;
-}
+.example-item{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border:1px solid var(--rule);border-radius:4px;cursor:pointer;transition:border-color 0.12s,background 0.12s;}
 .example-item:hover{border-color:var(--rule2);background:var(--paper);}
 .ex-name{font-family:var(--mono);font-size:11px;color:var(--ink2);}
 .ex-mw{font-family:var(--mono);font-size:10px;color:var(--ink4);}
-
-/* Status */
-.sidebar-status{
-  margin-top:auto;
-  padding-top:1.5rem;
-  border-top:1px solid var(--rule);
-  display:flex;flex-direction:column;gap:8px;
-}
+.sidebar-status{margin-top:auto;padding-top:1.5rem;border-top:1px solid var(--rule);display:flex;flex-direction:column;gap:8px;}
 .status-row{display:flex;align-items:center;gap:7px;}
 .status-dot{width:5px;height:5px;border-radius:50%;background:var(--ink5);flex-shrink:0;}
 .status-dot.on{background:var(--green);}
 .status-dot.pulse{background:var(--amber);animation:pulse 1s ease-in-out infinite;}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.35;}}
 .status-text{font-family:var(--mono);font-size:10px;color:var(--ink4);}
-
-/* API note */
-.api-note{display:none;background:var(--amber-lt);border:1px solid #D4B88A;border-radius:4px;padding:9px 11px;font-family:var(--mono);font-size:10px;color:var(--amber);line-height:1.6;margin-top:1rem;}
-
-/* ── RIGHT CONTENT AREA ─────────────────────────────────── */
 .content{padding:2.5rem 3rem 5rem;max-width:700px;}
-
-/* Page title */
 .content-header{margin-bottom:2.5rem;padding-bottom:2rem;border-bottom:1px solid var(--rule);}
-.content-header h1{font-family:var(--serif);font-size:28px;font-weight:400;letter-spacing:-0.01em;line-height:1.2;margin-bottom:6px;color:var(--ink);}
+.content-header h1{font-family:var(--serif);font-size:28px;font-weight:400;letter-spacing:-0.01em;line-height:1.2;margin-bottom:6px;}
 .content-header h1 em{font-style:italic;color:var(--ink3);}
 .content-header p{font-size:15px;color:var(--ink3);line-height:1.65;max-width:520px;}
-
-/* Data source strip */
 .source-strip{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap;}
 .strip-label{font-family:var(--mono);font-size:9px;color:var(--ink5);letter-spacing:0.1em;text-transform:uppercase;}
 .strip-chip{font-family:var(--mono);font-size:9px;padding:2px 7px;border:1px solid var(--rule2);border-radius:3px;color:var(--ink4);}
 .strip-chip.live{border-color:var(--green-mid);color:var(--green);}
-
-/* ── RESULTS ─────────────────────────────────────────────── */
 #results{display:none;}
-
-/* Section heading style */
-.section-head{
-  font-family:var(--mono);
-  font-size:9px;
-  color:var(--ink4);
-  letter-spacing:0.14em;
-  text-transform:uppercase;
-  margin-bottom:1rem;
-  padding-bottom:0.6rem;
-  border-bottom:1px solid var(--rule);
-}
-
-/* ── METRIC ROW ─────────────────────────────────────────── */
+.section-head{font-family:var(--mono);font-size:9px;color:var(--ink4);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:1rem;padding-bottom:0.6rem;border-bottom:1px solid var(--rule);}
 .metric-row{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-bottom:2.5rem;border:1px solid var(--rule);border-radius:6px;overflow:hidden;}
 .metric-cell{padding:1.1rem 1.2rem;border-right:1px solid var(--rule);}
 .metric-cell:last-child{border-right:none;}
 .mc-label{font-family:var(--mono);font-size:9px;color:var(--ink4);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px;}
 .mc-value{font-family:var(--mono);font-size:22px;font-weight:400;color:var(--ink);line-height:1;}
 .mc-sub{font-family:var(--mono);font-size:9px;color:var(--ink4);margin-top:4px;}
-
-/* ── SCORE BLOCK ─────────────────────────────────────────── */
 .score-block{margin-bottom:2.5rem;}
 .score-main{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:10px;}
 .score-compound{font-family:var(--serif);font-size:22px;color:var(--ink);font-style:italic;}
-.score-badge{
-  font-family:var(--mono);font-size:28px;font-weight:500;
-  line-height:1;padding:8px 16px;border-radius:4px;
-  background:var(--paper);border:1px solid var(--rule2);
-  color:var(--ink);
-}
+.score-badge{font-family:var(--mono);font-size:28px;font-weight:500;line-height:1;padding:8px 16px;border-radius:4px;}
 .score-track{height:3px;background:var(--rule);border-radius:999px;overflow:hidden;margin-bottom:8px;}
 .score-fill{height:3px;border-radius:999px;transition:width 1s cubic-bezier(0.16,1,0.3,1);}
 .score-meta{display:flex;justify-content:space-between;align-items:center;}
-.score-verdict{font-family:var(--mono);font-size:10px;color:var(--ink4);}
+.score-verdict{font-family:var(--mono);font-size:10px;}
 .score-range{font-family:var(--mono);font-size:9px;color:var(--ink5);}
-
-/* ── LIPINSKI TABLE ──────────────────────────────────────── */
 .lipinski-block{margin-bottom:2.5rem;}
 .lip-table{width:100%;border-collapse:collapse;}
 .lip-table tr{border-bottom:1px solid var(--rule);}
@@ -234,146 +74,59 @@ body{background:var(--paper);color:var(--ink);font-family:var(--serif);line-heig
 .lip-result{text-align:right;white-space:nowrap;}
 .pass-tag{font-family:var(--mono);font-size:9px;padding:2px 8px;border-radius:3px;background:var(--green-lt);color:var(--green);border:1px solid var(--green-mid);letter-spacing:0.05em;}
 .fail-tag{font-family:var(--mono);font-size:9px;padding:2px 8px;border-radius:3px;background:var(--red-lt);color:var(--red);border:1px solid #D4AAAA;letter-spacing:0.05em;}
-
-/* ── REPORT ──────────────────────────────────────────────── */
 .report-block{margin-bottom:2.5rem;}
-.report-byline{
-  display:flex;align-items:baseline;justify-content:space-between;
-  margin-bottom:1.25rem;padding-bottom:0.85rem;
-  border-bottom:1px solid var(--rule);
-}
+.report-byline{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1.25rem;padding-bottom:0.85rem;border-bottom:1px solid var(--rule);}
 .report-title{font-family:var(--serif);font-size:20px;font-weight:400;color:var(--ink);}
 .report-meta{font-family:var(--mono);font-size:9px;color:var(--ink4);letter-spacing:0.08em;text-transform:uppercase;}
-.report-body p{font-size:15.5px;color:var(--ink2);line-height:1.85;margin-bottom:1.1rem;font-weight:400;}
+.report-body p{font-size:15.5px;color:var(--ink2);line-height:1.85;margin-bottom:1.1rem;}
 .report-body p:last-child{margin-bottom:0;}
-
-/* ── FOOTNOTES ───────────────────────────────────────────── */
-.footnotes{
-  margin-top:1.25rem;padding-top:1rem;
-  border-top:1px solid var(--rule);
-  display:flex;flex-direction:column;gap:4px;
-}
+.footnotes{margin-top:1.25rem;padding-top:1rem;border-top:1px solid var(--rule);display:flex;flex-direction:column;gap:4px;}
 .fn-row{display:flex;align-items:center;gap:8px;}
 .fn-num{font-family:var(--mono);font-size:9px;color:var(--ink5);width:12px;flex-shrink:0;}
 .fn-text{font-family:var(--mono);font-size:10px;color:var(--ink4);line-height:1.4;}
 .fn-text.live{color:var(--green);}
-
-/* ── DISCLAIMER ──────────────────────────────────────────── */
 .disclaimer{font-family:var(--mono);font-size:10px;color:var(--ink5);line-height:1.6;margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--rule);}
-
-/* ── EMPTY STATE ─────────────────────────────────────────── */
-.empty-state{padding:4rem 0;color:var(--ink4);}
+.empty-state{padding:4rem 0;}
 .empty-state p{font-family:var(--serif);font-size:17px;font-style:italic;color:var(--ink4);}
 .empty-state small{display:block;margin-top:8px;font-family:var(--mono);font-size:10px;color:var(--ink5);}
-
-/* ── ANIMATIONS ──────────────────────────────────────────── */
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
 .fade{animation:fadeIn 0.4s ease both;}
 .fade2{animation:fadeIn 0.4s 0.08s ease both;}
 .fade3{animation:fadeIn 0.4s 0.16s ease both;}
 .fade4{animation:fadeIn 0.4s 0.24s ease both;}
-
-/* ── RESPONSIVE ──────────────────────────────────────────── */
-@media(max-width:720px){
-  .layout{grid-template-columns:1fr;}
-  .sidebar{position:static;height:auto;border-right:none;border-bottom:1px solid var(--rule);}
-  .content{padding:1.5rem;}
-  .metric-row{grid-template-columns:repeat(2,1fr);}
-  .metric-cell:nth-child(2){border-right:none;}
-  .metric-cell:nth-child(3){border-top:1px solid var(--rule);}
-  .metric-cell:nth-child(4){border-top:1px solid var(--rule);border-right:none;}
-}
+@media(max-width:720px){.layout{grid-template-columns:1fr;}.sidebar{position:static;height:auto;border-right:none;border-bottom:1px solid var(--rule);}.content{padding:1.5rem;}.metric-row{grid-template-columns:repeat(2,1fr);}.metric-cell:nth-child(2){border-right:none;}.metric-cell:nth-child(3){border-top:1px solid var(--rule);}.metric-cell:nth-child(4){border-top:1px solid var(--rule);border-right:none;}}
 </style>
 </head>
 <body>
 <div class="layout">
-
-  <!-- ══ LEFT SIDEBAR ══════════════════════════════════════ -->
   <aside class="sidebar">
-
     <div class="sidebar-logo">
-      <div class="logo-hex">
-        <svg viewBox="0 0 16 16"><polygon points="8,1 14,4.5 14,11.5 8,15 2,11.5 2,4.5"/><circle cx="8" cy="8" r="2"/></svg>
-      </div>
-      <div class="logo-text">
-        <span class="logo-name">MoleculeLink AI</span>
-        <span class="logo-sub">Pre-Synthesis Auditor</span>
-      </div>
+      <div class="logo-hex"><svg viewBox="0 0 16 16"><polygon points="8,1 14,4.5 14,11.5 8,15 2,11.5 2,4.5"/><circle cx="8" cy="8" r="2"/></svg></div>
+      <div><div class="logo-name">MoleculeLink AI</div><div class="logo-sub">Pre-Synthesis Auditor</div></div>
     </div>
-
-    <!-- Input -->
     <div class="sb-section">
       <span class="sb-label">SMILES string</span>
-      <!--
-        SMILES = Simplified Molecular Input Line Entry System
-        A text representation of a chemical structure.
-        Example: CC(=O)Oc1ccccc1C(=O)O = Aspirin
-      -->
-      <textarea
-        class="smiles-input"
-        id="smilesInput"
-        placeholder="CC(=O)Oc1ccccc1C(=O)O"
-        autocomplete="off"
-        spellcheck="false"
-      ></textarea>
+      <textarea class="smiles-input" id="smilesInput" placeholder="CC(=O)Oc1ccccc1C(=O)O" autocomplete="off" spellcheck="false"></textarea>
       <button class="btn-run" id="analyzeBtn" onclick="runAnalysis()">Run audit →</button>
     </div>
-
-    <!-- Example compounds -->
     <div class="sb-section">
       <span class="sb-label">Reference compounds</span>
       <div class="example-list">
-        <div class="example-item" onclick="load('aspirin')">
-          <span class="ex-name">Aspirin</span>
-          <span class="ex-mw">180.16 Da</span>
-        </div>
-        <div class="example-item" onclick="load('caffeine')">
-          <span class="ex-name">Caffeine</span>
-          <span class="ex-mw">194.19 Da</span>
-        </div>
-        <div class="example-item" onclick="load('ibuprofen')">
-          <span class="ex-name">Ibuprofen</span>
-          <span class="ex-mw">206.28 Da</span>
-        </div>
-        <div class="example-item" onclick="load('testosterone')">
-          <span class="ex-name">Testosterone</span>
-          <span class="ex-mw">288.42 Da</span>
-        </div>
+        <div class="example-item" onclick="load('aspirin')"><span class="ex-name">Aspirin</span><span class="ex-mw">180.16 Da</span></div>
+        <div class="example-item" onclick="load('caffeine')"><span class="ex-name">Caffeine</span><span class="ex-mw">194.19 Da</span></div>
+        <div class="example-item" onclick="load('ibuprofen')"><span class="ex-name">Ibuprofen</span><span class="ex-mw">206.28 Da</span></div>
+        <div class="example-item" onclick="load('testosterone')"><span class="ex-name">Testosterone</span><span class="ex-mw">288.42 Da</span></div>
       </div>
     </div>
-
-    <!-- API note -->
-    <div class="api-note" id="apiNote">
-      Live AI reports disabled.<br/>
-      Add your Anthropic key to const ANTHROPIC_KEY.<br/>
-      Get one free: console.anthropic.com
-    </div>
-
-    <!-- Status footer -->
     <div class="sidebar-status">
-      <div class="status-row">
-        <div class="status-dot on"></div>
-        <span class="status-text">PubChem (NIH) — connected</span>
-      </div>
-      <div class="status-row">
-        <div class="status-dot on"></div>
-        <span class="status-text">OpenFDA — connected</span>
-      </div>
-      <div class="status-row">
-        <div class="status-dot" id="aiDot"></div>
-        <span class="status-text" id="aiStatusText">Anthropic API — no key</span>
-      </div>
-      <div class="status-row" id="processingRow" style="display:none;">
-        <div class="status-dot pulse"></div>
-        <span class="status-text" id="statusText">Querying APIs...</span>
-      </div>
+      <div class="status-row"><div class="status-dot on"></div><span class="status-text">PubChem (NIH) — connected</span></div>
+      <div class="status-row"><div class="status-dot on"></div><span class="status-text">OpenFDA — connected</span></div>
+      <div class="status-row"><div class="status-dot on"></div><span class="status-text">Anthropic API — secured via server</span></div>
+      <div class="status-row" id="processingRow" style="display:none;"><div class="status-dot pulse"></div><span class="status-text" id="statusText">Querying...</span></div>
     </div>
-
   </aside>
-
-  <!-- ══ RIGHT CONTENT ══════════════════════════════════════ -->
+ 
   <main class="content">
-
     <div class="content-header">
       <h1>Pre-Synthesis <em>Feasibility Audit</em></h1>
       <p>Submit a SMILES chemical string to receive a Drugability Score, Lipinski analysis, and pharmacologist-grade feasibility report before any laboratory expenditure.</p>
@@ -386,351 +139,106 @@ body{background:var(--paper);color:var(--ink);font-family:var(--serif);line-heig
         <span class="strip-chip">Lipinski 1997</span>
       </div>
     </div>
-
-    <!-- Results -->
     <div id="results">
-
-      <!-- Metric row -->
       <div class="section-head fade">Molecular properties</div>
       <div class="metric-row fade" id="metricRow"></div>
-
-      <!-- Score -->
       <div class="section-head fade2">Drugability score</div>
       <div class="score-block fade2" id="scoreBlock"></div>
-
-      <!-- Lipinski -->
       <div class="section-head fade3">Lipinski rule of five</div>
       <div class="lipinski-block fade3" id="lipinskiBlock"></div>
-
-      <!-- Report -->
       <div class="section-head fade4">Feasibility report</div>
       <div class="report-block fade4" id="reportBlock"></div>
-
-      <!-- Disclaimer -->
-      <div class="disclaimer">
-        Pre-clinical research use only. This report synthesizes publicly available data from PubChem (NIH), OpenFDA,
-        NCBI PubMed, and DailyMed. It does not constitute medical advice and involves no patient data.
-        All compound assessments are for laboratory planning purposes only and should be verified
-        against primary literature before synthesis decisions are made.
-      </div>
-
+      <div class="disclaimer">Pre-clinical research use only. This report synthesizes publicly available data from PubChem (NIH), OpenFDA, NCBI PubMed, and DailyMed. It does not constitute medical advice and involves no patient data. All compound assessments are for laboratory planning purposes only.</div>
     </div>
-
-    <!-- Empty state -->
     <div class="empty-state" id="emptyState">
       <p>No compound submitted.</p>
-      <small>Enter a SMILES string in the panel at left, or select one of the four reference compounds to generate a full audit report.</small>
+      <small>Enter a SMILES string in the panel at left, or select a reference compound to generate a full audit report.</small>
     </div>
-
   </main>
 </div>
-
+ 
 <script>
-// ── YOUR ANTHROPIC API KEY ────────────────────────────────────
-// Get one free at https://console.anthropic.com → API Keys
-const ANTHROPIC_KEY = "YOUR_KEY_HERE";
-
-// ── VERIFIED COMPOUND DATABASE ────────────────────────────────
-// Properties sourced from PubChem CID records and DrugBank.
-// Stage 2 will replace static entries with live RDKit computation.
-const KNOWN = {
-  aspirin: {
-    smiles:"CC(=O)Oc1ccccc1C(=O)O",
-    name:"Aspirin", iupac:"Acetylsalicylic acid",
-    mw:180.16, logp:1.19, hbd:1, hba:4, rotb:3,
-    cid:"2244", score:88,
-    report:[
-      "Aspirin presents an excellent oral drug-likeness profile across all four Lipinski criteria. A molecular weight of 180 Da and LogP of 1.19 place it well within the bioavailability sweet spot — small, moderately polar, and highly membrane-permeable. These properties translate to rapid gastrointestinal absorption and broad tissue distribution, consistent with its established pharmacokinetic profile in humans.",
-      "The primary metabolic liability is hydrolysis of the acetyl ester group by plasma and hepatic esterases, rapidly converting the prodrug to active salicylate. This is a well-characterized and clinically manageable transformation. Researchers developing aspirin analogues should note that modifications to the ester linkage significantly alter onset kinetics; the carboxylic acid moiety is the pharmacophoric anchor for COX inhibition and must be preserved in most structure-activity relationship programs.",
-      "Recommendation: Proceed to synthesis. This scaffold carries a 125-year safety and efficacy record with well-established, low-cost synthetic routes. For derivative programs, structural modifications should focus on the aromatic ring or ester group to tune COX-1/COX-2 selectivity. Do not expect to improve upon the parent compound's ADMET profile without a clear mechanistic rationale for each modification."
-    ],
-    refs:["PubChem CID 2244","OpenFDA NDA-000357","Adv Drug Deliv Rev. 1997;23:3–25"]
-  },
-  caffeine:{
-    smiles:"CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
-    name:"Caffeine", iupac:"1,3,7-trimethylxanthine",
-    mw:194.19, logp:-0.07, hbd:0, hba:3, rotb:0,
-    cid:"2519", score:91,
-    report:[
-      "Caffeine demonstrates near-ideal oral drug-likeness across all measured parameters. Its molecular weight of 194 Da, negligible lipophilicity (LogP −0.07), and complete absence of hydrogen bond donors confer exceptional membrane permeability including transit across the blood-brain barrier. All four Lipinski criteria pass with significant margin; zero rotatable bonds indicate a rigid, conformationally stable scaffold resistant to entropic penalty upon receptor binding.",
-      "The dominant metabolic consideration is extensive hepatic first-pass metabolism via CYP1A2, generating three primary N-demethylated metabolites (theophylline, theobromine, paraxanthine). CYP1A2 is subject to clinically significant genetic polymorphism — poor metabolizers exhibit plasma half-lives two to three times longer than extensive metabolizers, with important implications for therapeutic index in any derivative program. Early CYP1A2 inhibition and induction profiling is mandatory for adenosine receptor-targeted candidates in this scaffold class.",
-      "Recommendation: Proceed with structural optimization. The xanthine core is synthetically accessible via established routes and exhibits excellent tolerability across a broad population. For adenosine A1/A2A receptor antagonist programs, SAR exploration at N1 and N3 positions has historically yielded receptor subtype selectivity without compromising oral bioavailability. Bulky C8 substituents consistently impair membrane permeability and should be avoided absent specific binding data justifying the substitution."
-    ],
-    refs:["PubChem CID 2519","DrugBank DB00201","J Pharmacol Exp Ther. 1981;219:150"]
-  },
-  ibuprofen:{
-    smiles:"CC(C)Cc1ccc(cc1)C(C)C(=O)O",
-    name:"Ibuprofen", iupac:"(RS)-2-(4-isobutylphenyl)propanoic acid",
-    mw:206.28, logp:3.97, hbd:1, hba:2, rotb:4,
-    cid:"3672", score:82,
-    report:[
-      "Ibuprofen exhibits strong oral drug-likeness with all Lipinski parameters satisfied. A LogP of 3.97 positions it toward the upper boundary of the acceptable lipophilicity range, contributing to exceptionally high plasma protein binding exceeding 99% and correspondingly broad tissue distribution. The propionic acid group provides the aqueous solubility anchor that prevents transition into the problematic LogP >5 range associated with formulation and absorption challenges.",
-      "The dominant safety and metabolic liability is non-selective inhibition of COX-1, producing gastrointestinal mucosal damage through prostaglandin suppression — a class-level effect responsible for the discontinuation of multiple Phase 2 and Phase 3 NSAID candidates. The chiral center at C2 means racemic synthesis produces one pharmacologically inactive enantiomer (R-ibuprofen), although partial in vivo chiral inversion by a coenzyme A-dependent epimerase partially compensates. Any analogue program must include early COX-1/COX-2 selectivity profiling and chiral resolution assessment.",
-      "Recommendation: Proceed with selectivity-guided structural modification. The scaffold is synthetically straightforward and ADMET-favorable, but COX-1 inhibition represents a hard barrier to clinical translation. The Phase 2/3 failure history of the arylpropionic acid class is overwhelmingly attributable to gastrointestinal toxicity — front-loading isoform selectivity data will be the decisive gate for any derivative program. Co-crystallography with COX-2 is recommended to guide selective modifications at the aryl propionic acid pharmacophore."
-    ],
-    refs:["PubChem CID 3672","OpenFDA NDA-019842","PMID 3693878"]
-  },
-  testosterone:{
-    smiles:"CC12CCC3C(C1CCC2O)CCC4=CC(=O)CCC34C",
-    name:"Testosterone", iupac:"17β-hydroxyandrost-4-en-3-one",
-    mw:288.42, logp:3.32, hbd:1, hba:2, rotb:0,
-    cid:"5999", score:74,
-    report:[
-      "Testosterone satisfies all four Lipinski criteria with a molecular weight of 288 Da and a LogP of 3.32. The rigid tetracyclic steroidal scaffold with zero rotatable bonds contributes to the metabolic stability of the core ring system. However, oral bioavailability of the native compound is poor — typically below 10% — due to extensive hepatic first-pass metabolism and high extraction ratio, which accounts for why all approved therapeutic formulations are delivered via injectable, transdermal, or buccal routes.",
-      "Two metabolic pathways require prioritized attention in any derivative program. First, 5α-reduction to dihydrotestosterone (DHT) by 5α-reductase isoforms drives androgenic side effects including prostate hypertrophy and androgenic alopecia. Second, aromatization to estradiol by CYP19A1 produces estrogenic effects requiring monitoring in therapeutic contexts. Critically, 17α-alkylation — the modification historically employed to achieve oral bioavailability in synthetic androgens — is associated with substantial hepatotoxicity risk through disruption of hepatic bile transport and has been implicated in Phase 1 terminations for multiple candidates.",
-      "Recommendation: Structural modification required before oral development. If the therapeutic goal is systemic androgenic activity, non-steroidal selective androgen receptor modulator (SARM) scaffolds should be evaluated as an alternative; these preserve tissue-selective receptor activity while eliminating the steroid metabolic liability profile. If remaining within the steroidal framework, C17 ester prodrug strategies optimized for injectable depot formulations represent the lowest-risk development path and are consistent with all currently approved testosterone products."
-    ],
-    refs:["PubChem CID 5999","DrugBank DB00624","PMID 12829247"]
-  }
+// ═══════════════════════════════════════════════════════════════
+// MOLECULELINK AI — Stage 1
+// The Anthropic API key is stored in Vercel environment variables.
+// AI requests go through /api/analyze (serverless function in api/analyze.js)
+// so the key never appears in this file or in the browser.
+// ═══════════════════════════════════════════════════════════════
+ 
+const KNOWN={
+  aspirin:{smiles:"CC(=O)Oc1ccccc1C(=O)O",name:"Aspirin",iupac:"Acetylsalicylic acid",mw:180.16,logp:1.19,hbd:1,hba:4,rotb:3,cid:"2244",score:88,report:["Aspirin presents an excellent oral drug-likeness profile across all four Lipinski criteria. A molecular weight of 180 Da and LogP of 1.19 place it well within the bioavailability sweet spot — small, moderately polar, and highly membrane-permeable. These properties translate to rapid gastrointestinal absorption and broad tissue distribution, consistent with its established pharmacokinetic profile in humans.","The primary metabolic liability is hydrolysis of the acetyl ester group by plasma and hepatic esterases, rapidly converting the prodrug to active salicylate. This is a well-characterized and clinically manageable transformation. Researchers developing aspirin analogues should note that modifications to the ester linkage significantly alter onset kinetics; the carboxylic acid moiety is the pharmacophoric anchor for COX inhibition and must be preserved in most structure-activity relationship programs.","Recommendation: Proceed to synthesis. This scaffold carries a 125-year safety and efficacy record with well-established, low-cost synthetic routes. For derivative programs, structural modifications should focus on the aromatic ring or ester group to tune COX-1/COX-2 selectivity without compromising the favorable ADMET profile."],refs:["PubChem CID 2244","OpenFDA NDA-000357","Adv Drug Deliv Rev. 1997;23:3–25"]},
+  caffeine:{smiles:"CN1C=NC2=C1C(=O)N(C(=O)N2C)C",name:"Caffeine",iupac:"1,3,7-trimethylxanthine",mw:194.19,logp:-0.07,hbd:0,hba:3,rotb:0,cid:"2519",score:91,report:["Caffeine demonstrates near-ideal oral drug-likeness across all measured parameters. Its molecular weight of 194 Da, negligible lipophilicity (LogP −0.07), and complete absence of hydrogen bond donors confer exceptional membrane permeability including transit across the blood-brain barrier. All four Lipinski criteria pass with significant margin; zero rotatable bonds indicate a rigid, conformationally stable scaffold.","The dominant metabolic consideration is extensive hepatic first-pass metabolism via CYP1A2, generating three primary N-demethylated metabolites. CYP1A2 is subject to clinically significant genetic polymorphism — poor metabolizers exhibit plasma half-lives two to three times longer than extensive metabolizers, with important implications for therapeutic index in any derivative program.","Recommendation: Proceed with structural optimization. The xanthine core is synthetically accessible and exhibits excellent tolerability. For adenosine A1/A2A receptor antagonist programs, SAR exploration at N1 and N3 positions has historically yielded receptor subtype selectivity without compromising oral bioavailability."],refs:["PubChem CID 2519","DrugBank DB00201","J Pharmacol Exp Ther. 1981;219:150"]},
+  ibuprofen:{smiles:"CC(C)Cc1ccc(cc1)C(C)C(=O)O",name:"Ibuprofen",iupac:"(RS)-2-(4-isobutylphenyl)propanoic acid",mw:206.28,logp:3.97,hbd:1,hba:2,rotb:4,cid:"3672",score:82,report:["Ibuprofen exhibits strong oral drug-likeness with all Lipinski parameters satisfied. A LogP of 3.97 positions it toward the upper boundary of the acceptable lipophilicity range, contributing to exceptionally high plasma protein binding exceeding 99%. The propionic acid group provides the aqueous solubility anchor that prevents transition into the problematic LogP >5 range.","The dominant safety liability is non-selective inhibition of COX-1, producing gastrointestinal mucosal damage — a class-level effect responsible for the discontinuation of multiple Phase 2 and Phase 3 NSAID candidates. Any analogue program must include early COX-1/COX-2 selectivity profiling and chiral resolution assessment.","Recommendation: Proceed with selectivity-guided structural modification. The scaffold is synthetically straightforward and ADMET-favorable, but COX-1 inhibition represents a hard barrier to clinical translation. Front-loading isoform selectivity data will be the decisive gate for any derivative program."],refs:["PubChem CID 3672","OpenFDA NDA-019842","PMID 3693878"]},
+  testosterone:{smiles:"CC12CCC3C(C1CCC2O)CCC4=CC(=O)CCC34C",name:"Testosterone",iupac:"17β-hydroxyandrost-4-en-3-one",mw:288.42,logp:3.32,hbd:1,hba:2,rotb:0,cid:"5999",score:74,report:["Testosterone satisfies all four Lipinski criteria with a molecular weight of 288 Da and a LogP of 3.32. The rigid tetracyclic steroidal scaffold with zero rotatable bonds contributes to metabolic stability of the core ring system. However, oral bioavailability is typically below 10% due to extensive hepatic first-pass metabolism.","Two metabolic pathways require prioritized attention: 5α-reduction to dihydrotestosterone by 5α-reductase isoforms, and aromatization to estradiol by CYP19A1. Critically, 17α-alkylation to achieve oral bioavailability is associated with substantial hepatotoxicity risk and has been implicated in Phase 1 terminations for multiple candidates.","Recommendation: Structural modification required before oral development. Non-steroidal SARM scaffolds should be evaluated as an alternative, preserving receptor selectivity while eliminating the steroid metabolic liability profile. If remaining steroidal, C17 ester prodrug strategies for injectable depot formulations represent the lowest-risk path."],refs:["PubChem CID 5999","DrugBank DB00624","PMID 12829247"]}
 };
-
-let currentKey = null;
-
-function load(key){
-  document.getElementById("smilesInput").value = KNOWN[key].smiles;
-  currentKey = key;
-  runAnalysis();
-}
-
-function detectKey(smiles){
-  for(const [k,d] of Object.entries(KNOWN)){
-    if(d.smiles === smiles.trim()) return k;
-  }
-  return null;
-}
-
-// Structural estimation for unknown SMILES.
-// Stage 2: replace this function with a fetch() call to your Python/RDKit backend.
-function estimateProps(smiles){
-  const heavy = (smiles.match(/[BCNOPS]/gi)||[]).length;
-  const rings  = (smiles.match(/[0-9]/g)||[]).length/2;
-  const mw     = parseFloat((heavy*13.5+rings*12+60+Math.random()*80).toFixed(2));
-  const logp   = parseFloat((-1+Math.random()*7).toFixed(2));
-  const hbd    = Math.min(5,Math.floor(Math.random()*5));
-  const hba    = Math.min(10,Math.floor(Math.random()*9));
-  const rotb   = Math.floor(Math.random()*8);
-  const passes = [mw<=500,logp<=5,hbd<=5,hba<=10].filter(Boolean).length;
-  const score  = Math.min(100,passes*18+Math.floor(Math.random()*28)+10);
-  return {name:"Custom compound",iupac:"Unknown structure",mw,logp,hbd,hba,rotb,score};
-}
-
-// Lipinski rule evaluation — four criteria, each pass/fail
-function evalLipinski(p){
-  return [
-    {criterion:"Molecular weight does not exceed 500 Da", measured:p.mw.toFixed(2)+" Da", pass:p.mw<=500},
-    {criterion:"Calculated log P does not exceed 5.0",    measured:p.logp.toFixed(2),      pass:p.logp<=5},
-    {criterion:"No more than 5 hydrogen bond donors",     measured:p.hbd+" donors",         pass:p.hbd<=5},
-    {criterion:"No more than 10 hydrogen bond acceptors", measured:p.hba+" acceptors",      pass:p.hba<=10},
-  ];
-}
-
-// PubChem REST API — NIH-verified compound properties
-async function fetchPubChem(cid){
-  try{
-    setStatus("Querying PubChem (NIH)...");
-    const r = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${cid}/property/MolecularWeight,XLogP,HBondDonorCount,HBondAcceptorCount,RotatableBondCount/JSON`);
-    if(!r.ok) return null;
-    const d = await r.json();
-    const p = d.PropertyTable.Properties[0];
-    return{mw:parseFloat(p.MolecularWeight),logp:parseFloat(p.XLogP||0),hbd:parseInt(p.HBondDonorCount),hba:parseInt(p.HBondAcceptorCount),rotb:parseInt(p.RotatableBondCount)};
-  }catch{return null;}
-}
-
-// OpenFDA API — adverse event record count for safety context
-async function fetchOpenFDA(name){
-  try{
-    setStatus("Querying OpenFDA adverse event database...");
-    const r = await fetch(`https://api.fda.gov/drug/event.json?search=patient.drug.medicinalproduct:"${encodeURIComponent(name)}"&limit=3`);
-    if(!r.ok) return null;
-    const d = await r.json();
-    return d.results ? d.results.length : 0;
-  }catch{return null;}
-}
-
-// Anthropic API — live AI pharmacologist report
+ 
+let currentKey=null;
+function load(key){document.getElementById("smilesInput").value=KNOWN[key].smiles;currentKey=key;runAnalysis();}
+function detectKey(smiles){for(const[k,d]of Object.entries(KNOWN)){if(d.smiles===smiles.trim())return k;}return null;}
+function estimateProps(smiles){const heavy=(smiles.match(/[BCNOPS]/gi)||[]).length;const rings=(smiles.match(/[0-9]/g)||[]).length/2;const mw=parseFloat((heavy*13.5+rings*12+60+Math.random()*80).toFixed(2));const logp=parseFloat((-1+Math.random()*7).toFixed(2));const hbd=Math.min(5,Math.floor(Math.random()*5));const hba=Math.min(10,Math.floor(Math.random()*9));const rotb=Math.floor(Math.random()*8);const passes=[mw<=500,logp<=5,hbd<=5,hba<=10].filter(Boolean).length;const score=Math.min(100,passes*18+Math.floor(Math.random()*28)+10);return{name:"Custom compound",iupac:"Unknown structure",mw,logp,hbd,hba,rotb,score};}
+function evalLipinski(p){return[{criterion:"Molecular weight does not exceed 500 Da",measured:p.mw.toFixed(2)+" Da",pass:p.mw<=500},{criterion:"Calculated log P does not exceed 5.0",measured:p.logp.toFixed(2),pass:p.logp<=5},{criterion:"No more than 5 hydrogen bond donors",measured:p.hbd+" donors",pass:p.hbd<=5},{criterion:"No more than 10 hydrogen bond acceptors",measured:p.hba+" acceptors",pass:p.hba<=10}];}
+async function fetchPubChem(cid){try{setStatus("Querying PubChem (NIH)...");const r=await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${cid}/property/MolecularWeight,XLogP,HBondDonorCount,HBondAcceptorCount,RotatableBondCount/JSON`);if(!r.ok)return null;const d=await r.json();const p=d.PropertyTable.Properties[0];return{mw:parseFloat(p.MolecularWeight),logp:parseFloat(p.XLogP||0),hbd:parseInt(p.HBondDonorCount),hba:parseInt(p.HBondAcceptorCount),rotb:parseInt(p.RotatableBondCount)};}catch{return null;}}
+async function fetchOpenFDA(name){try{setStatus("Querying OpenFDA...");const r=await fetch(`https://api.fda.gov/drug/event.json?search=patient.drug.medicinalproduct:"${encodeURIComponent(name)}"&limit=3`);if(!r.ok)return null;const d=await r.json();return d.results?d.results.length:0;}catch{return null;}}
+ 
+// Calls /api/analyze — your serverless function that holds the API key safely
 async function generateAIReport(props,rules,score,smiles){
-  if(!ANTHROPIC_KEY||ANTHROPIC_KEY==="YOUR_KEY_HERE") return null;
   try{
     setStatus("Generating AI feasibility report...");
-    const failed = rules.filter(r=>!r.pass).map(r=>r.criterion).join("; ")||"none";
-    const r = await fetch("https://api.anthropic.com/v1/messages",{
+    const failed=rules.filter(r=>!r.pass).map(r=>r.criterion).join("; ")||"none";
+    const r=await fetch("/api/analyze",{
       method:"POST",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify({
         model:"claude-sonnet-4-20250514",
         max_tokens:1000,
-        messages:[{role:"user",content:`You are a senior medicinal chemist and pharmacologist writing a pre-synthesis feasibility report.
-
-Compound: ${props.name} (${props.iupac||""})
-SMILES: ${smiles}
-MW: ${props.mw.toFixed(1)} Da | LogP: ${props.logp.toFixed(2)} | HBD: ${props.hbd} | HBA: ${props.hba} | RotB: ${props.rotb||"—"}
-Lipinski criteria failed: ${failed}
-Drugability score: ${score}/100
-
-Write exactly three paragraphs of academic prose (no headers, no bullet points, no markdown):
-Paragraph 1: Drug-likeness and oral bioavailability assessment based on the physicochemical data above.
-Paragraph 2: Specific metabolic liabilities, biotransformation pathways to flag, and any known failure patterns for this structural class.
-Paragraph 3: A clear recommendation — proceed, modify, or deprioritize — with specific structural guidance.
-
-Tone: peer-reviewed publication quality. Cite specific enzymes, pathways, and mechanisms. Under 220 words total.`}]
+        messages:[{role:"user",content:`You are a senior medicinal chemist writing a pre-synthesis feasibility report.\n\nCompound: ${props.name} (${props.iupac||""})\nSMILES: ${smiles}\nMW: ${props.mw.toFixed(1)} Da | LogP: ${props.logp.toFixed(2)} | HBD: ${props.hbd} | HBA: ${props.hba}\nLipinski failed: ${failed}\nDrugability score: ${score}/100\n\nWrite exactly 3 paragraphs of academic prose (no headers, no bullets):\n1. Drug-likeness and oral bioavailability assessment\n2. Metabolic liabilities and biotransformation pathways\n3. Recommendation: proceed, modify, or deprioritize with specific structural guidance\n\nTone: peer-reviewed quality. Cite enzymes and mechanisms. Under 220 words.`}]
       })
     });
-    const d = await r.json();
-    const text = d.content?.map(b=>b.text||"").join("")||null;
+    const d=await r.json();
+    const text=d.content?.map(b=>b.text||"").join("")||null;
     return text?[text]:null;
   }catch{return null;}
 }
-
-function setStatus(msg){
-  document.getElementById("statusText").textContent=msg;
-  document.getElementById("processingRow").style.display="flex";
-}
-function clearStatus(){
-  document.getElementById("processingRow").style.display="none";
-}
-
-// ── MAIN ORCHESTRATOR ─────────────────────────────────────────
+ 
+function setStatus(msg){document.getElementById("statusText").textContent=msg;document.getElementById("processingRow").style.display="flex";}
+function clearStatus(){document.getElementById("processingRow").style.display="none";}
+ 
 async function runAnalysis(){
-  const smiles = document.getElementById("smilesInput").value.trim();
-  if(!smiles) return;
-
-  const btn = document.getElementById("analyzeBtn");
-  btn.disabled=true; btn.textContent="Auditing...";
+  const smiles=document.getElementById("smilesInput").value.trim();
+  if(!smiles)return;
+  const btn=document.getElementById("analyzeBtn");
+  btn.disabled=true;btn.textContent="Auditing...";
   document.getElementById("emptyState").style.display="none";
   document.getElementById("results").style.display="none";
-
-  const key   = currentKey||detectKey(smiles);
-  const known = key?KNOWN[key]:null;
-  let props   = known?{...known}:estimateProps(smiles);
-
-  // Fetch live PubChem data for known compounds
-  if(known&&known.cid){
-    const live = await fetchPubChem(known.cid);
-    if(live) Object.assign(props,live);
-  }
-
-  // Fetch OpenFDA adverse event data
+  const key=currentKey||detectKey(smiles);
+  const known=key?KNOWN[key]:null;
+  let props=known?{...known}:estimateProps(smiles);
+  if(known&&known.cid){const live=await fetchPubChem(known.cid);if(live)Object.assign(props,live);}
   let fdaCount=null;
-  if(known) fdaCount=await fetchOpenFDA(known.name);
-
-  const rules  = evalLipinski(props);
-  const passes = rules.filter(r=>r.pass).length;
-  const score  = props.score||Math.min(100,passes*20+15+Math.floor(Math.random()*15));
-
-  // Get AI report or fall back to pre-written
-  let reportParagraphs=null;
-  if(ANTHROPIC_KEY&&ANTHROPIC_KEY!=="YOUR_KEY_HERE"){
-    reportParagraphs=await generateAIReport(props,rules,score,smiles);
-  }
-  if(!reportParagraphs){
-    reportParagraphs=known?.report||[
-      "Lipinski property estimation is complete based on structural parsing of the submitted SMILES string. For a complete AI-generated pharmacologist report on novel structures, supply your Anthropic API key in the configuration block at the top of this file.",
-      "The Lipinski Rule of Five analysis above reflects estimated physicochemical properties. Stage 2 of this application will integrate the RDKit cheminformatics library for exact property computation and pkCSM for comprehensive ADMET prediction including hepatic microsomal clearance, plasma protein binding, and hERG channel liability.",
-      "Preliminary recommendation: review the Lipinski analysis above. If three or more criteria pass, the compound warrants further computational investigation. Activate the Anthropic API connection to receive a complete metabolic liability and synthesis feasibility assessment."
-    ];
-  }
-
+  if(known)fdaCount=await fetchOpenFDA(known.name);
+  const rules=evalLipinski(props);
+  const passes=rules.filter(r=>r.pass).length;
+  const score=props.score||Math.min(100,passes*20+15+Math.floor(Math.random()*15));
+  let reportParagraphs=await generateAIReport(props,rules,score,smiles);
+  if(!reportParagraphs){reportParagraphs=known?.report||["Lipinski property estimation is complete based on structural parsing of the submitted SMILES string.","Stage 2 will integrate RDKit for exact property computation and pkCSM for comprehensive ADMET prediction.","If three or more Lipinski criteria pass, the compound warrants further computational investigation."];}
   clearStatus();
-
-  // Determine score color and language thresholds
-  const scoreColor  = score>=70?"var(--green)":score>=45?"var(--amber)":"var(--red)";
-  const scoreBg     = score>=70?"var(--green-lt)":score>=45?"var(--amber-lt)":"var(--red-lt)";
-  const verdictText = score>=70?"Proceed to synthesis planning":score>=45?"Modify — address flagged liabilities before proceeding":"Deprioritize — significant structural or metabolic hurdles identified";
-
-  // ── RENDER: Molecular properties ─────────────────────────
-  document.getElementById("metricRow").innerHTML=`
-    <div class="metric-cell">
-      <div class="mc-label">MW</div>
-      <div class="mc-value">${props.mw.toFixed(1)}</div>
-      <div class="mc-sub">Da ${props.mw<=500?"·  ≤500":"· >500 ⚠"}</div>
-    </div>
-    <div class="metric-cell">
-      <div class="mc-label">LogP</div>
-      <div class="mc-value">${props.logp.toFixed(2)}</div>
-      <div class="mc-sub">${props.logp<=5?"within range":"exceeds 5.0 ⚠"}</div>
-    </div>
-    <div class="metric-cell">
-      <div class="mc-label">Lipinski</div>
-      <div class="mc-value" style="color:${scoreColor}">${passes}/4</div>
-      <div class="mc-sub">${passes===4?"all pass":passes>=2?"partial pass":"failing"}</div>
-    </div>
-    <div class="metric-cell">
-      <div class="mc-label">HBD / HBA</div>
-      <div class="mc-value" style="font-size:18px;padding-top:3px;">${props.hbd} / ${props.hba}</div>
-      <div class="mc-sub">donors / acceptors</div>
-    </div>
-  `;
-
-  // ── RENDER: Score ─────────────────────────────────────────
-  document.getElementById("scoreBlock").innerHTML=`
-    <div class="score-main">
-      <span class="score-compound" style="font-style:italic;">${props.name}</span>
-      <span class="score-badge" style="color:${scoreColor};background:${scoreBg};border-color:${scoreColor}22;">${score}<span style="font-size:14px;opacity:0.6;">/100</span></span>
-    </div>
-    <div class="score-track">
-      <div class="score-fill" id="scoreFill" style="width:0%;background:${scoreColor};"></div>
-    </div>
-    <div class="score-meta">
-      <span class="score-verdict" style="color:${scoreColor}">${verdictText}</span>
-      <span class="score-range">0 = non-viable · 100 = ideal</span>
-    </div>
-  `;
-  // Animate bar after render
-  setTimeout(()=>{
-    const f=document.getElementById("scoreFill");
-    if(f) f.style.width=score+"%";
-  },50);
-
-  // ── RENDER: Lipinski ──────────────────────────────────────
-  document.getElementById("lipinskiBlock").innerHTML=`
-    <table class="lip-table">
-      ${rules.map((r,i)=>`
-        <tr>
-          <td class="lip-criterion">${i+1}. ${r.criterion}</td>
-          <td class="lip-value">${r.measured}</td>
-          <td class="lip-result"><span class="${r.pass?"pass-tag":"fail-tag"}">${r.pass?"PASS":"FAIL"}</span></td>
-        </tr>
-      `).join("")}
-    </table>
-  `;
-
-  // ── RENDER: Report ────────────────────────────────────────
-  const refs   = known?.refs||["PubChem (NIH)","OpenFDA","Lipinski et al. 1997"];
-  const liveSet= ["PubChem","OpenFDA","NCBI","DailyMed","DrugBank"];
-  const fnRows = refs.map((r,i)=>`
-    <div class="fn-row">
-      <span class="fn-num">[${i+1}]</span>
-      <span class="fn-text ${liveSet.some(a=>r.includes(a))?"live":""}">${r}</span>
-    </div>
-  `).join("");
-  const fdaFn = fdaCount!==null
-    ?`<div class="fn-row"><span class="fn-num">[${refs.length+1}]</span><span class="fn-text live">OpenFDA: ${fdaCount} adverse event report(s) retrieved for ${known.name}</span></div>`
-    :"";
-
-  document.getElementById("reportBlock").innerHTML=`
-    <div class="report-byline">
-      <span class="report-title">Feasibility Report</span>
-      <span class="report-meta">AI-generated · pre-clinical use only</span>
-    </div>
-    <div class="report-body">${reportParagraphs.map(p=>`<p>${p}</p>`).join("")}</div>
-    <div class="footnotes">${fnRows}${fdaFn}</div>
-  `;
-
+  const scoreColor=score>=70?"var(--green)":score>=45?"var(--amber)":"var(--red)";
+  const scoreBg=score>=70?"var(--green-lt)":score>=45?"var(--amber-lt)":"var(--red-lt)";
+  const verdictText=score>=70?"Proceed to synthesis planning":score>=45?"Modify — address flagged liabilities":"Deprioritize — significant hurdles identified";
+  document.getElementById("metricRow").innerHTML=`<div class="metric-cell"><div class="mc-label">MW</div><div class="mc-value">${props.mw.toFixed(1)}</div><div class="mc-sub">Da ${props.mw<=500?"· ≤500":"· >500 ⚠"}</div></div><div class="metric-cell"><div class="mc-label">LogP</div><div class="mc-value">${props.logp.toFixed(2)}</div><div class="mc-sub">${props.logp<=5?"within range":"exceeds 5.0 ⚠"}</div></div><div class="metric-cell"><div class="mc-label">Lipinski</div><div class="mc-value" style="color:${scoreColor}">${passes}/4</div><div class="mc-sub">${passes===4?"all pass":passes>=2?"partial":"failing"}</div></div><div class="metric-cell"><div class="mc-label">HBD / HBA</div><div class="mc-value" style="font-size:18px;padding-top:3px;">${props.hbd} / ${props.hba}</div><div class="mc-sub">donors / acceptors</div></div>`;
+  document.getElementById("scoreBlock").innerHTML=`<div class="score-main"><span class="score-compound">${props.name}</span><span class="score-badge" style="color:${scoreColor};background:${scoreBg};border:1px solid ${scoreColor}33;">${score}<span style="font-size:14px;opacity:0.6;">/100</span></span></div><div class="score-track"><div class="score-fill" id="scoreFill" style="width:0%;background:${scoreColor};"></div></div><div class="score-meta"><span class="score-verdict" style="color:${scoreColor}">${verdictText}</span><span class="score-range">0 = non-viable · 100 = ideal</span></div>`;
+  setTimeout(()=>{const f=document.getElementById("scoreFill");if(f)f.style.width=score+"%";},50);
+  document.getElementById("lipinskiBlock").innerHTML=`<table class="lip-table">${rules.map((r,i)=>`<tr><td class="lip-criterion">${i+1}. ${r.criterion}</td><td class="lip-value">${r.measured}</td><td class="lip-result"><span class="${r.pass?"pass-tag":"fail-tag"}">${r.pass?"PASS":"FAIL"}</span></td></tr>`).join("")}</table>`;
+  const refs=known?.refs||["PubChem (NIH)","OpenFDA","Lipinski et al. 1997"];
+  const liveSet=["PubChem","OpenFDA","NCBI","DailyMed","DrugBank"];
+  const fnRows=refs.map((r,i)=>`<div class="fn-row"><span class="fn-num">[${i+1}]</span><span class="fn-text ${liveSet.some(a=>r.includes(a))?"live":""}">${r}</span></div>`).join("");
+  const fdaFn=fdaCount!==null?`<div class="fn-row"><span class="fn-num">[${refs.length+1}]</span><span class="fn-text live">OpenFDA: ${fdaCount} adverse event report(s) retrieved</span></div>`:"";
+  document.getElementById("reportBlock").innerHTML=`<div class="report-byline"><span class="report-title">Feasibility Report</span><span class="report-meta">AI-generated · pre-clinical use only</span></div><div class="report-body">${reportParagraphs.map(p=>`<p>${p}</p>`).join("")}</div><div class="footnotes">${fnRows}${fdaFn}</div>`;
   document.getElementById("results").style.display="block";
-  btn.disabled=false; btn.textContent="Run audit →";
+  btn.disabled=false;btn.textContent="Run audit →";
   currentKey=null;
 }
-
-// Keyboard shortcut: Ctrl/Cmd + Enter to run
-document.getElementById("smilesInput").addEventListener("keydown",e=>{
-  if((e.ctrlKey||e.metaKey)&&e.key==="Enter") runAnalysis();
-});
-
-// Initialize API status indicators
-const hasKey = ANTHROPIC_KEY&&ANTHROPIC_KEY!=="YOUR_KEY_HERE";
-document.getElementById("aiDot").classList.toggle("on",hasKey);
-document.getElementById("aiStatusText").textContent=hasKey?"Anthropic API — connected":"Anthropic API — no key";
-if(!hasKey) document.getElementById("apiNote").style.display="block";
+document.getElementById("smilesInput").addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&e.key==="Enter")runAnalysis();});
 </script>
 </body>
 </html>
