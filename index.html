@@ -47,6 +47,17 @@ body{background:var(--paper);color:var(--ink);font-family:var(--serif);line-heig
 .strip-label{font-family:var(--mono);font-size:9px;color:var(--ink5);letter-spacing:0.1em;text-transform:uppercase;}
 .strip-chip{font-family:var(--mono);font-size:9px;padding:2px 7px;border:1px solid var(--rule2);border-radius:3px;color:var(--ink4);}
 .strip-chip.live{border-color:var(--green-mid);color:var(--green);}
+ 
+/* About box — shown before first audit */
+.about-box{background:var(--white);border:1px solid var(--rule);border-radius:8px;padding:1.25rem 1.5rem;margin-bottom:1.5rem;}
+.about-box h3{font-family:var(--serif);font-size:17px;font-weight:400;margin-bottom:0.6rem;color:var(--ink);}
+.about-box p{font-size:13.5px;color:var(--ink3);line-height:1.7;margin-bottom:0.5rem;}
+.about-box p:last-child{margin-bottom:0;}
+.about-tag{display:inline-block;font-family:var(--mono);font-size:9px;padding:2px 8px;border-radius:3px;background:var(--amber-lt);color:var(--amber);border:1px solid #D4B88A;margin-bottom:0.75rem;}
+ 
+/* Rate limit warning */
+.rate-warning{display:none;background:var(--amber-lt);border:1px solid #D4B88A;border-radius:6px;padding:10px 14px;font-family:var(--mono);font-size:11px;color:var(--amber);margin-bottom:1rem;line-height:1.5;}
+ 
 #results{display:none;}
 .section-head{font-family:var(--mono);font-size:9px;color:var(--ink4);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:1rem;padding-bottom:0.6rem;border-bottom:1px solid var(--rule);}
 .metric-row{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-bottom:2.5rem;border:1px solid var(--rule);border-radius:6px;overflow:hidden;}
@@ -85,7 +96,15 @@ body{background:var(--paper);color:var(--ink);font-family:var(--serif);line-heig
 .fn-num{font-family:var(--mono);font-size:9px;color:var(--ink5);width:12px;flex-shrink:0;}
 .fn-text{font-family:var(--mono);font-size:10px;color:var(--ink4);line-height:1.4;}
 .fn-text.live{color:var(--green);}
-.disclaimer{font-family:var(--mono);font-size:10px;color:var(--ink5);line-height:1.6;margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--rule);}
+ 
+/* Feedback + disclaimer footer */
+.page-footer{margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--rule);display:flex;flex-direction:column;gap:10px;}
+.disclaimer{font-family:var(--mono);font-size:10px;color:var(--ink5);line-height:1.6;}
+.feedback-row{display:flex;align-items:center;gap:8px;}
+.feedback-label{font-family:var(--mono);font-size:10px;color:var(--ink4);}
+.feedback-link{font-family:var(--mono);font-size:10px;color:var(--green);text-decoration:none;border-bottom:1px solid var(--green-mid);}
+.feedback-link:hover{color:var(--ink);border-color:var(--ink);}
+ 
 .empty-state{padding:4rem 0;}
 .empty-state p{font-family:var(--serif);font-size:17px;font-style:italic;color:var(--ink4);}
 .empty-state small{display:block;margin-top:8px;font-family:var(--mono);font-size:10px;color:var(--ink5);}
@@ -139,6 +158,21 @@ body{background:var(--paper);color:var(--ink);font-family:var(--serif);line-heig
         <span class="strip-chip">Lipinski 1997</span>
       </div>
     </div>
+ 
+    <!-- About box — visible before first audit, explains Stage 1 limitations upfront -->
+    <div class="about-box" id="aboutBox">
+      <div class="about-tag">Stage 1 Public Beta</div>
+      <h3>About this tool</h3>
+      <p>MoleculeLink AI is a pre-synthesis screening tool for medicinal chemists and drug discovery researchers. Paste any SMILES string to receive an instant Drugability Score, Lipinski Rule of Five analysis, and AI-generated feasibility report cross-referencing NIH and FDA databases.</p>
+      <p><strong>Current limitations:</strong> Molecular properties for custom SMILES strings are estimated rather than computed exactly. The four reference compounds (Aspirin, Caffeine, Ibuprofen, Testosterone) pull verified data directly from PubChem. Exact computation via RDKit is coming in Stage 2. The AI feasibility report reasoning is accurate — it is working from estimated inputs for novel structures.</p>
+      <p>This tool operates exclusively on pre-clinical chemical data. No patient data is processed at any stage.</p>
+    </div>
+ 
+    <!-- Rate limit warning — shown if user hits the hourly limit -->
+    <div class="rate-warning" id="rateWarning">
+      You have reached the limit of 10 reports per hour. This limit exists to keep the tool free and available for all researchers. Please try again in an hour.
+    </div>
+ 
     <div id="results">
       <div class="section-head fade">Molecular properties</div>
       <div class="metric-row fade" id="metricRow"></div>
@@ -148,11 +182,23 @@ body{background:var(--paper);color:var(--ink);font-family:var(--serif);line-heig
       <div class="lipinski-block fade3" id="lipinskiBlock"></div>
       <div class="section-head fade4">Feasibility report</div>
       <div class="report-block fade4" id="reportBlock"></div>
-      <div class="disclaimer">Pre-clinical research use only. This report synthesizes publicly available data from PubChem (NIH), OpenFDA, NCBI PubMed, and DailyMed. It does not constitute medical advice and involves no patient data. All compound assessments are for laboratory planning purposes only.</div>
     </div>
+ 
     <div class="empty-state" id="emptyState">
       <p>No compound submitted.</p>
       <small>Enter a SMILES string in the panel at left, or select a reference compound to generate a full audit report.</small>
+    </div>
+ 
+    <!-- Page footer with disclaimer and feedback link -->
+    <div class="page-footer">
+      <div class="disclaimer">
+        Pre-clinical research use only. This report synthesizes publicly available data from PubChem (NIH), OpenFDA, NCBI PubMed, and DailyMed. It does not constitute medical advice and involves no patient data. All compound assessments are for laboratory planning purposes only.
+      </div>
+      <div class="feedback-row">
+        <span class="feedback-label">Feedback or questions —</span>
+        <!-- Replace with your actual email address before sending to pilots -->
+        <a class="feedback-link" href="mailto:your@email.com">your@email.com</a>
+      </div>
     </div>
   </main>
 </div>
@@ -160,9 +206,9 @@ body{background:var(--paper);color:var(--ink);font-family:var(--serif);line-heig
 <script>
 // ═══════════════════════════════════════════════════════════════
 // MOLECULELINK AI — Stage 1
-// The Anthropic API key is stored in Vercel environment variables.
-// AI requests go through /api/analyze (serverless function in api/analyze.js)
-// so the key never appears in this file or in the browser.
+// API key secured in Vercel environment variables.
+// AI requests routed through /api/analyze (serverless function).
+// Rate limiting: 10 requests per hour per IP (enforced server-side).
 // ═══════════════════════════════════════════════════════════════
  
 const KNOWN={
@@ -180,7 +226,6 @@ function evalLipinski(p){return[{criterion:"Molecular weight does not exceed 500
 async function fetchPubChem(cid){try{setStatus("Querying PubChem (NIH)...");const r=await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${cid}/property/MolecularWeight,XLogP,HBondDonorCount,HBondAcceptorCount,RotatableBondCount/JSON`);if(!r.ok)return null;const d=await r.json();const p=d.PropertyTable.Properties[0];return{mw:parseFloat(p.MolecularWeight),logp:parseFloat(p.XLogP||0),hbd:parseInt(p.HBondDonorCount),hba:parseInt(p.HBondAcceptorCount),rotb:parseInt(p.RotatableBondCount)};}catch{return null;}}
 async function fetchOpenFDA(name){try{setStatus("Querying OpenFDA...");const r=await fetch(`https://api.fda.gov/drug/event.json?search=patient.drug.medicinalproduct:"${encodeURIComponent(name)}"&limit=3`);if(!r.ok)return null;const d=await r.json();return d.results?d.results.length:0;}catch{return null;}}
  
-// Calls /api/analyze — your serverless function that holds the API key safely
 async function generateAIReport(props,rules,score,smiles){
   try{
     setStatus("Generating AI feasibility report...");
@@ -194,6 +239,13 @@ async function generateAIReport(props,rules,score,smiles){
         messages:[{role:"user",content:`You are a senior medicinal chemist writing a pre-synthesis feasibility report.\n\nCompound: ${props.name} (${props.iupac||""})\nSMILES: ${smiles}\nMW: ${props.mw.toFixed(1)} Da | LogP: ${props.logp.toFixed(2)} | HBD: ${props.hbd} | HBA: ${props.hba}\nLipinski failed: ${failed}\nDrugability score: ${score}/100\n\nWrite exactly 3 paragraphs of academic prose (no headers, no bullets):\n1. Drug-likeness and oral bioavailability assessment\n2. Metabolic liabilities and biotransformation pathways\n3. Recommendation: proceed, modify, or deprioritize with specific structural guidance\n\nTone: peer-reviewed quality. Cite enzymes and mechanisms. Under 220 words.`}]
       })
     });
+ 
+    // Handle rate limit response
+    if(r.status===429){
+      document.getElementById("rateWarning").style.display="block";
+      return null;
+    }
+ 
     const d=await r.json();
     const text=d.content?.map(b=>b.text||"").join("")||null;
     return text?[text]:null;
@@ -210,6 +262,11 @@ async function runAnalysis(){
   btn.disabled=true;btn.textContent="Auditing...";
   document.getElementById("emptyState").style.display="none";
   document.getElementById("results").style.display="none";
+  document.getElementById("rateWarning").style.display="none";
+ 
+  // Hide about box after first audit
+  document.getElementById("aboutBox").style.display="none";
+ 
   const key=currentKey||detectKey(smiles);
   const known=key?KNOWN[key]:null;
   let props=known?{...known}:estimateProps(smiles);
@@ -242,3 +299,4 @@ document.getElementById("smilesInput").addEventListener("keydown",e=>{if((e.ctrl
 </script>
 </body>
 </html>
+ 
